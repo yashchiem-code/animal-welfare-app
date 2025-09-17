@@ -2,6 +2,6 @@
 window.ENV_CONFIG = {
     API_BASE_URL: window.location.hostname === 'localhost'
         ? 'http://localhost:8080'
-        : 'https://your-railway-app.railway.app', // Update this with your Railway URL
+        : 'https://animal-welfare-backend-6fuk.onrender.com', // Your live Render backend
     // No API key needed for OpenStreetMap - it's completely free!
 };
