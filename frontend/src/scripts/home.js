@@ -66,7 +66,10 @@ function createAnimalCard(animal) {
     return `
         <div class="animal-card">
             <div class="animal-image">
-                <img src="${animal.imageUrl}" alt="${animal.name}" onerror="this.src='src/assets/placeholder-animal.jpg'">
+                <img src="${animal.imageUrl || 'src/assets/placeholder-animal.jpg'}" 
+                     alt="${animal.name}" 
+                     loading="lazy"
+                     onerror="this.src='src/assets/placeholder-animal.svg'; this.onerror=null;">
                 <span class="status-badge ${statusClass}">
                     ${animal.status.charAt(0).toUpperCase() + animal.status.slice(1)}
                 </span>

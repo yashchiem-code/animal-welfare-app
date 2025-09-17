@@ -1,17 +1,26 @@
 // Report animal page functionality
-let map, geocoder, marker;
+let map, marker;
 
-// Initialize Google Maps
+// Initialize OpenStreetMap with Leaflet
 function initMap() {
-    map = new google.maps.Map(document.getElementById("map"), {
-        center: CONFIG.GOOGLE_MAPS.DEFAULT_CENTER,
-        zoom: CONFIG.GOOGLE_MAPS.DEFAULT_ZOOM,
-    });
+    // Create map centered on default location
+    map = L.map('map').setView([CONFIG.MAP.DEFAULT_CENTER.lat, CONFIG.MAP.DEFAULT_CENTER.lng], CONFIG.MAP.DEFAULT_ZOOM);
 
-    geocoder = new google.maps.Geocoder();
-    marker = new google.maps.Marker({
-        map: map,
-        draggable: true,
+    // Add OpenStreetMap tile layer (completely free!)
+    L.tileLayer(CONFIG.MAP.TILE_LAYER, {
+        attribution: CONFIG.MAP.ATTRIBUTION,
+        maxZoom: 19
+    }).addTo(map);
+
+    // Add a draggable marker for new animal location
+    marker = L.marker([CONFIG.MAP.DEFAULT_CENTER.lat, CONFIG.MAP.DEFAULT_CENTER.lng], {
+        draggable: true
+    }).addTo(map);
+
+    // Update coordinates when marker is dragged
+    marker.on('dragend', function (e) {
+        const position = e.target.getLatLng();
+        updateLocationFromCoords(position.lat, position.lng);
     });
 
     // Fetch existing animals and add markers
@@ -20,7 +29,7 @@ function initMap() {
     // Update map on location input change
     const locationInput = document.getElementById("location");
     if (locationInput) {
-        locationInput.addEventListener("input", debounce(updateMapLocation, 500));
+        locationInput.addEventListener("input", debounce(updateMapLocation, 1000));
     }
 }
 
@@ -37,21 +46,43 @@ function debounce(func, wait) {
     };
 }
 
-// Update map location based on input
+// Update map location based on input using free Nominatim geocoding
 async function updateMapLocation(event) {
     const location = event.target.value;
     if (location.length > 3) {
         try {
-            const results = await geocoder.geocode({ address: location });
-            if (results.results && results.results.length > 0) {
-                const { lat, lng } = results.results[0].geometry.location;
-                const position = { lat: lat(), lng: lng() };
-                map.setCenter(position);
-                marker.setPosition(position);
+            // Use free Nominatim geocoding service
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`);
+            const results = await response.json();
+
+            if (results && results.length > 0) {
+                const lat = parseFloat(results[0].lat);
+                const lng = parseFloat(results[0].lon);
+
+                // Update map center and marker position
+                map.setView([lat, lng], CONFIG.MAP.DEFAULT_ZOOM);
+                marker.setLatLng([lat, lng]);
             }
         } catch (error) {
             console.error("Geocoding error:", error);
         }
+    }
+}
+
+// Update location input from coordinates (reverse geocoding)
+async function updateLocationFromCoords(lat, lng) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const result = await response.json();
+
+        if (result && result.display_name) {
+            const locationInput = document.getElementById("location");
+            if (locationInput) {
+                locationInput.value = result.display_name;
+            }
+        }
+    } catch (error) {
+        console.error("Reverse geocoding error:", error);
     }
 }
 
@@ -62,32 +93,37 @@ async function fetchExistingAnimals() {
         const animals = await API_UTILS.fetchWithErrorHandling(url);
 
         animals.forEach((animal) => {
-            const animalMarker = new google.maps.Marker({
-                position: { lat: animal.lat, lng: animal.lng },
-                map: map,
-                title: animal.name,
-                icon: {
-                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="4" r="2"/>
-                            <circle cx="18" cy="8" r="2"/>
-                            <circle cx="20" cy="16" r="2"/>
-                            <path d="m9 10 5-5 5 5"/>
-                            <path d="m15 5 5 5v7"/>
-                        </svg>
-                    `),
-                    scaledSize: new google.maps.Size(30, 30)
-                }
+            // Create custom icon based on status
+            const iconColor = {
+                'reported': '#4f46e5',
+                'available': '#059669',
+                'pending': '#d97706',
+                'adopted': '#dc2626'
+            }[animal.status] || '#4f46e5';
+
+            // Create custom marker with paw print icon
+            const customIcon = L.divIcon({
+                html: `<div style="background-color: ${iconColor}; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
+                        <circle cx="11" cy="4" r="2"/>
+                        <circle cx="18" cy="8" r="2"/>
+                        <circle cx="20" cy="16" r="2"/>
+                        <path d="m9 10 5-5 5 5"/>
+                        <path d="m15 5 5 5v7"/>
+                    </svg>
+                </div>`,
+                className: 'custom-div-icon',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
             });
 
-            // Add info window (popup card) to the marker
-            const infoWindow = new google.maps.InfoWindow({
-                content: createAnimalInfoCard(animal),
-            });
+            const animalMarker = L.marker([animal.lat, animal.lng], {
+                icon: customIcon,
+                title: animal.name
+            }).addTo(map);
 
-            animalMarker.addListener("click", () => {
-                infoWindow.open(map, animalMarker);
-            });
+            // Add popup with animal info
+            animalMarker.bindPopup(createAnimalInfoCard(animal));
         });
     } catch (error) {
         console.error("Error fetching animals:", error);
@@ -132,22 +168,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                // Convert location to lat/lng using Geocoding API
-                const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(animalData.location)}&key=${CONFIG.GOOGLE_MAPS.API_KEY}`;
-                const geocodeResponse = await fetch(geocodeUrl);
-
-                if (!geocodeResponse.ok) {
-                    throw new Error(`Geocoding failed: ${geocodeResponse.status}`);
-                }
-
-                const geocodeData = await geocodeResponse.json();
-
-                if (geocodeData.status !== "OK" || geocodeData.results.length === 0) {
-                    throw new Error("Invalid location provided or no results found.");
-                }
-
-                // Extract latitude and longitude
-                const { lat, lng } = geocodeData.results[0].geometry.location;
+                // Get coordinates from marker position (user can drag marker to exact location)
+                const markerPosition = marker.getLatLng();
+                const lat = markerPosition.lat;
+                const lng = markerPosition.lng;
 
                 // Prepare the complete data payload
                 const completeAnimalData = {
@@ -170,9 +194,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert(`Animal reported successfully! ID: ${savedAnimal.id}`);
                 reportForm.reset();
 
-                // Refresh the map with new animal
+                // Add new animal marker to map immediately
                 if (map) {
-                    fetchExistingAnimals();
+                    const iconColor = '#4f46e5'; // reported status color
+                    const customIcon = L.divIcon({
+                        html: `<div style="background-color: ${iconColor}; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
+                                <circle cx="11" cy="4" r="2"/>
+                                <circle cx="18" cy="8" r="2"/>
+                                <circle cx="20" cy="16" r="2"/>
+                                <path d="m9 10 5-5 5 5"/>
+                                <path d="m15 5 5 5v7"/>
+                            </svg>
+                        </div>`,
+                        className: 'custom-div-icon',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+
+                    const newMarker = L.marker([lat, lng], {
+                        icon: customIcon,
+                        title: savedAnimal.name
+                    }).addTo(map);
+
+                    newMarker.bindPopup(createAnimalInfoCard(savedAnimal));
                 }
 
             } catch (error) {
@@ -182,21 +227,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Load Google Maps script dynamically
-    loadGoogleMapsScript();
+    // Initialize OpenStreetMap (no API key needed!)
+    initializeMap();
 });
 
-// Load Google Maps script
-function loadGoogleMapsScript() {
-    if (CONFIG.GOOGLE_MAPS.API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
-        console.warn('Please update your Google Maps API key in config.js');
-        document.getElementById('map').innerHTML = '<p class="error">Please configure Google Maps API key</p>';
-        return;
+// Initialize map when page loads (no API key needed!)
+function initializeMap() {
+    // Wait for Leaflet to load
+    if (typeof L !== 'undefined') {
+        initMap();
+    } else {
+        setTimeout(initializeMap, 100);
     }
-
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_MAPS.API_KEY}&callback=initMap`;
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
 }

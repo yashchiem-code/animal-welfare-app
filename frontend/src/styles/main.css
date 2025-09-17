@@ -186,6 +186,8 @@ body {
     height: 100%;
     object-fit: cover;
     transition: transform 0.2s;
+    background-color: #f3f4f6;
+    display: block;
 }
 
 .animal-card:hover .animal-image img {

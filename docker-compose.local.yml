@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Spring Boot Backend (using Aiven MySQL)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: animal-welfare-backend-local
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - animal-welfare-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/all || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx for Frontend
+  frontend:
+    image: nginx:alpine
+    container_name: animal-welfare-frontend-local
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./deployment/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend
+    networks:
+      - animal-welfare-network
+    restart: unless-stopped
+
+networks:
+  animal-welfare-network:
+    driver: bridge

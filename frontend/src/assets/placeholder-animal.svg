@@ -1,0 +1,13 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f3f4f6"/>
+  <circle cx="200" cy="120" r="40" fill="#d1d5db"/>
+  <circle cx="180" cy="110" r="8" fill="#6b7280"/>
+  <circle cx="220" cy="110" r="8" fill="#6b7280"/>
+  <path d="M180 130 Q200 140 220 130" stroke="#6b7280" stroke-width="3" fill="none"/>
+  <circle cx="160" cy="80" r="12" fill="#d1d5db"/>
+  <circle cx="240" cy="80" r="12" fill="#d1d5db"/>
+  <circle cx="140" cy="140" r="8" fill="#d1d5db"/>
+  <circle cx="260" cy="140" r="8" fill="#d1d5db"/>
+  <text x="200" y="220" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="16">Animal Photo</text>
+  <text x="200" y="240" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="12">Image not available</text>
+</svg>

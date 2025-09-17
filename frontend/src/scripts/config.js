@@ -11,15 +11,15 @@ const CONFIG = {
         }
     },
 
-    // Google Maps Configuration
-    GOOGLE_MAPS: {
-        // IMPORTANT: Replace with your actual Google Maps API key
-        API_KEY: window.GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY_HERE',
+    // OpenStreetMap Configuration (Free Alternative)
+    MAP: {
         DEFAULT_CENTER: {
             lat: 22.572645,
             lng: 88.363892
         },
-        DEFAULT_ZOOM: 13
+        DEFAULT_ZOOM: 13,
+        TILE_LAYER: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        ATTRIBUTION: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     },
 
     // Application Settings
