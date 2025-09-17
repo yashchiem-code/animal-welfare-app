@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Animal - Animal Welfare Tracker</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i data-lucide="paw-print" class="nav-logo"></i>
+                <span>Animal Welfare</span>
+            </div>
+            <div class="nav-links">
+                <a href="../../index.html">Home</a>
+                <a href="animals.html">Animals</a>
+                <a href="report.html" class="active">Report Animal</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="header">
+            <h1>Report a Stray Animal</h1>
+            <p>Help us by providing details about stray animals in need.</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Form -->
+            <form id="reportForm" class="report-form">
+                <div class="form-group">
+                    <label for="animalName">Animal Name</label>
+                    <input type="text" id="animalName" name="animalName" placeholder="Enter animal name" required>
+                </div>
+                <div class="form-group">
+                    <label for="breed">Breed</label>
+                    <input type="text" id="breed" name="breed" placeholder="NA if not sure" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="Enter location" required>
+                </div>
+                <div class="form-group">
+                    <label for="imageUrl">Image URL</label>
+                    <input type="url" id="imageUrl" name="imageUrl" placeholder="Enter image URL" required>
+                </div>
+                <div class="form-group">
+                    <label for="reporterName">Your Name</label>
+                    <input type="text" id="reporterName" name="reporterName" placeholder="Enter your name" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-adopt">Submit Report</button>
+                </div>
+            </form>
+
+            <!-- Map -->
+            <div id="map"></div>
+        </div>
+    </main>
+
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/report.js"></script>
+</body>
+
+</html>

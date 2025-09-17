@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Welfare Tracker</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-oR8GkT5v93Knjsj2CLaD3IOuFtyMDGknO9DWT2C30Yw=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-o/MtdPia7woME6Fik7mMbkZF2ZWPTC3GcihIMHiQsPI=" crossorigin=""></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i data-lucide="paw-print" class="nav-logo"></i>
+                <span>Animal Welfare</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="active">Home</a>
+                <a href="src/pages/animals.html">Animals</a>
+                <a href="src/pages/report.html">Report Animal</a>
+            </div>
+            <button class="menu-btn" id="menuBtn">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="header">
+            <h1>Animal Welfare Tracker</h1>
+            <p>Help us track and care for stray animals in your area</p>
+        </div>
+
+        <div class="search-filters">
+            <div class="search-box">
+                <i data-lucide="search"></i>
+                <input type="text" id="searchInput" placeholder="Search animals...">
+            </div>
+            <div class="filters">
+                <select id="statusFilter">
+                    <option value="all">Adopted Status</option>
+                    <option value="available">Available</option>
+                    <option value="pending">Pending</option>
+                    <option value="adopted">Adopted</option>
+                </select>
+                <select id="feedingFilter">
+                    <option value="all">Feeding Status</option>
+                    <option value="fed">Fed Today</option>
+                    <option value="unfed">Needs Feeding</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="animals-grid" id="animalsGrid">
+            <!-- Animals will be inserted here by JavaScript -->
+        </div>
+    </main>
+
+    <script src="env-config.js"></script>
+    <script src="src/scripts/config.js"></script>
+    <script src="src/scripts/home.js"></script>
+</body>
+
+</html>

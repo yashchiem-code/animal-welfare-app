@@ -1,0 +1,18 @@
+# Commands to run after creating GitHub repository
+
+# 1. Add the remote repository (replace with your actual GitHub URL)
+git remote add origin https://github.com/yourusername/animal-welfare-platform.git
+
+# 2. Rename the default branch to main (GitHub standard)
+git branch -M main
+
+# 3. Push your code to GitHub
+git push -u origin main
+
+# 4. Verify the push worked
+git remote -v
+
+# Future commits (after making changes):
+# git add .
+# git commit -m "Your commit message"
+# git push

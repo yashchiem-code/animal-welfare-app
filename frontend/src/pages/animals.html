@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animals - Animal Welfare Tracker</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i data-lucide="paw-print" class="nav-logo"></i>
+                <span>Animal Welfare</span>
+            </div>
+            <div class="nav-links">
+                <a href="../../index.html">Home</a>
+                <a href="animals.html" class="active">Animals</a>
+                <a href="report.html">Report Animal</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="header">
+            <h1>Reported Animals</h1>
+            <p>View detailed information about all reported animals</p>
+        </div>
+
+        <div id="animalCards" class="cards-container">
+            <!-- Cards will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/animals.js"></script>
+</body>
+
+</html>

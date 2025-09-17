@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # MySQL Database for Development
+  mysql-dev:
+    image: mysql:8.0
+    container_name: animal-welfare-db-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: devpassword
+      MYSQL_DATABASE: animal_welfare_dev
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - animal-welfare-dev-network
+    restart: unless-stopped
+
+  # phpMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: animal-welfare-phpmyadmin
+    environment:
+      PMA_HOST: mysql-dev
+      PMA_PORT: 3306
+      PMA_USER: devuser
+      PMA_PASSWORD: devpass
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql-dev
+    networks:
+      - animal-welfare-dev-network
+
+volumes:
+  mysql_dev_data:
+
+networks:
+  animal-welfare-dev-network:
+    driver: bridge
